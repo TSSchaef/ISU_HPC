@@ -49,6 +49,13 @@ int main(int argc, char *argv[]) {
     printf("Solution vector x:\n");
     print_vector_full(&x, "x");
 
+    // power iteration and inverse iteration
+    printf("Power Iteration:\n");
+    printf("%lf\n", power_iteration(&A, &b, 1e-6, 1000));
+
+    printf("Inverse Iteration:\n");
+    printf("%lf\n", inverse_iteration(&A, &b, 0.5, 1e-6, 1000));
+
     // Clean up data structures
     delete_matrix(&L);
     delete_matrix(&Lt);

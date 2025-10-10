@@ -19,9 +19,9 @@ typedef struct {
 
 // Shortcut evalauate functions
 # define mget(mat ,i,j) (mat.data [(i -1)*mat.cols +(j -1)])
-# define mgetp(mat ,i,j) (mat ->data [(i -1)*mat ->cols +(j -1)])
+# define mgetp(mat ,i,j) (mat->data [(i -1)*mat->cols +(j -1)])
 # define vget(vec ,i) (vec.data [(i -1)])
-# define vgetp(vec ,i) (vec ->data [(i -1)])
+# define vgetp(vec ,i) (vec->data [(i -1)])
 
 # define print_matrix (mat) print_matrix_full (mat ,# mat);
 # define print_vector (vec) print_vector_full (vec ,# vec);
@@ -48,5 +48,9 @@ void print_scalar_full ( const double * z, char* varname );
 
 vector matrix_vector_mult ( const matrix * A, const vector * x);
 vector solve ( const matrix * A, const vector * b);
+
+// Eigenvalue algorithms
+double power_iteration(const matrix * A, vector * b, const double tol, const int max_iter);
+double inverse_iteration(const matrix * A, vector * b, const double mu, const double tol, const int max_iter);
 
 #endif

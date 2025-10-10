@@ -275,3 +275,80 @@ vector solve ( const matrix * A, const vector * b){
     return x;
 }
 
+double power_iteration(const matrix * A, vector * b, const double tol, const int max_iter){
+    double lambda_old = 0.0, lambda_new = 0.0;
+    double diff;
+    int iter = 0;
+
+    // Normalize initial vector b
+    double norm_b = sqrt(vector_dot_mult(b, b));
+    for (int i = 1; i <= b->size; i++) vgetp(b, i) /= norm_b;
+
+    do {
+        // Multiply A * b
+        vector Ab = matrix_vector_mult(A, b);
+
+        // Compute new eigenvalue estimate λ = (bᵀ A b)
+        lambda_new = vector_dot_mult(b, &Ab);
+
+        // Normalize new vector
+        double norm_Ab = sqrt(vector_dot_mult(&Ab, &Ab));
+        for (int i = 1; i <= b->size; i++) vgetp(b, i) = vgetp(b, i) / norm_Ab;
+
+        // Check for convergence
+        diff = fabs(lambda_new - lambda_old);
+        lambda_old = lambda_new;
+
+        delete_vector(&Ab);
+        iter++;
+
+    } while (diff > tol && iter < max_iter);
+
+    return lambda_new;       
+}
+
+double inverse_iteration(const matrix * A, vector * b, const double mu, const double tol, const int max_iter){
+    int n = b->size;
+    double lambda_old = mu, lambda_new = mu;
+    double diff;
+    int iter = 0;
+
+    // Build (A - μI)
+    matrix A_shift = new_matrix(A->rows, A->cols);
+    for (int i = 1; i <= A->rows; i++) {
+        for (int j = 1; j <= A->cols; j++) {
+            double val = mgetp(A, i, j);
+            if (i == j) val -= mu;
+            mgetp((&A_shift), i, j) = val;
+        }
+    }
+
+    // Normalize initial vector
+    double norm_b = sqrt(vector_dot_mult(b, b));
+    for (int i = 1; i <= n; i++) vgetp(b, i) /= norm_b;
+
+    do {
+        // Solve (A - μI) y = b
+        vector y = solve(&A_shift, b);
+
+        // Normalize y
+        double norm_y = sqrt(vector_dot_mult(&y, &y));
+        for (int i = 1; i <= n; i++) vgetp(b, i) = vgetp((&y), i) / norm_y;
+
+        // Rayleigh quotient estimate: λ ≈ bᵀ A b
+        vector c = matrix_vector_mult(A, b);
+        lambda_new = vector_dot_mult(b, (&c));
+        delete_vector(&c);
+
+        diff = fabs(lambda_new - lambda_old);
+        lambda_old = lambda_new;
+
+        delete_vector(&y);
+        iter++;
+
+    } while (diff > tol && iter < max_iter);
+
+    delete_matrix(&A_shift);
+
+    return lambda_new;
+}
